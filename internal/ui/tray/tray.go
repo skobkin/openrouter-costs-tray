@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
+	"fyne.io/systray"
 
 	"openrouter-costs-tray/internal/config"
 	"openrouter-costs-tray/internal/state"
@@ -79,6 +80,7 @@ func (t *Tray) Update() {
 	t.menu.Label = label
 	t.setIcon(snap, cfg)
 	t.menu.Refresh()
+	systray.SetTooltip(label)
 }
 
 func (t *Tray) buildMenu() {
