@@ -106,14 +106,14 @@ func (t *Tray) setIcon(snap state.Snapshot, cfg config.Config) {
 		return
 	}
 	if snap.NotConfigured || cfg.Connection.Token == "" {
-		t.desktopApp.SetSystemTrayIcon(theme.InfoIcon())
+		t.desktopApp.SetSystemTrayIcon(trayIconResource())
 		return
 	}
 	if snap.LastError != "" {
 		t.desktopApp.SetSystemTrayIcon(theme.ErrorIcon())
 		return
 	}
-	t.desktopApp.SetSystemTrayIcon(theme.InfoIcon())
+	t.desktopApp.SetSystemTrayIcon(trayIconResource())
 }
 
 func tooltipLabel(cfg config.Config, snap state.Snapshot) string {
