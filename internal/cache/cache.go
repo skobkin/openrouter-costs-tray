@@ -41,6 +41,7 @@ func DefaultCachePath() (string, error) {
 }
 
 func LoadFromPath(path string) (*CostsCache, error) {
+	//nolint:gosec // path comes from config/store, not user input
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

@@ -24,9 +24,6 @@ linters:
       exclude-functions:
         - os.Remove
         - (io.Closer).Close
-    gosec:
-      excludes:
-        - G304
     revive:
       rules:
         - name: blank-imports
