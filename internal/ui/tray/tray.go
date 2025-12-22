@@ -2,7 +2,6 @@ package tray
 
 import (
 	"log/slog"
-	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
@@ -11,7 +10,7 @@ import (
 
 	"openrouter-costs-tray/internal/config"
 	"openrouter-costs-tray/internal/state"
-	"openrouter-costs-tray/internal/util"
+	"openrouter-costs-tray/internal/summary"
 )
 
 type Actions struct {
@@ -75,7 +74,7 @@ func (t *Tray) Update() {
 	}
 	cfg := t.cfgStore.Get()
 	snap := t.state.Snapshot()
-	label := tooltipLabel(cfg, snap)
+	label := summary.Tooltip(cfg, snap)
 
 	t.menu.Label = label
 	t.setIcon(snap, cfg)
@@ -116,30 +115,6 @@ func (t *Tray) setIcon(snap state.Snapshot, cfg config.Config) {
 		return
 	}
 	t.desktopApp.SetSystemTrayIcon(IconResource())
-}
-
-func tooltipLabel(cfg config.Config, snap state.Snapshot) string {
-	if cfg.Connection.Token == "" || snap.NotConfigured {
-		return "Set token in Settings"
-	}
-	lines := []string{
-		"Daily: " + formatUsage(snap.Usage.Daily),
-		"Weekly: " + formatUsage(snap.Usage.Weekly),
-		"Monthly: " + formatUsage(snap.Usage.Monthly),
-		"Total: " + util.FormatUSD(snap.Usage.Total),
-		"Updated: " + util.FormatTime(snap.LastSuccessAt),
-	}
-	if snap.LastError != "" {
-		lines = append(lines, "ERROR: "+snap.LastError+" (stale)")
-	}
-	return strings.Join(lines, "\n")
-}
-
-func formatUsage(value *float64) string {
-	if value == nil {
-		return "N/A"
-	}
-	return util.FormatUSD(*value)
 }
 
 func runOnMain(app fyne.App, fn func()) {

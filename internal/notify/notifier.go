@@ -65,6 +65,19 @@ func (n *Notifier) NotifyError(err error) {
 	n.send("OpenRouter Costs", "Error: "+err.Error()+" (retrying on schedule)")
 }
 
+func (n *Notifier) NotifyStartSummary(content string) {
+	if content == "" {
+		return
+	}
+	n.mu.RLock()
+	cfg := n.cfg
+	n.mu.RUnlock()
+	if !cfg.Enabled || !cfg.OnStartSummary {
+		return
+	}
+	n.send("OpenRouter Costs", content)
+}
+
 func (n *Notifier) send(title, content string) {
 	if n.app == nil {
 		n.logger.Warn("notification dropped: no app", "title", title, "content", content)

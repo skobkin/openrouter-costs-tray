@@ -88,14 +88,24 @@ func Show(app fyne.App, deps Deps) {
 	notifyUpdate.SetChecked(cfg.Notifications.OnUpdateSpent)
 	notifyError := widget.NewCheck("On error", nil)
 	notifyError.SetChecked(cfg.Notifications.OnError)
+	notifyStartSummary := widget.NewCheck("On start: spends summary", nil)
+	notifyStartSummary.SetChecked(cfg.Notifications.OnStartSummary)
+	testNotifyButton := widget.NewButton("Test notification", func() {
+		app.SendNotification(&fyne.Notification{
+			Title:   "OpenRouter Costs",
+			Content: "Test notification",
+		})
+	})
 
 	setNotificationsEnabled := func(enabled bool) {
 		if enabled {
 			notifyUpdate.Enable()
 			notifyError.Enable()
+			notifyStartSummary.Enable()
 		} else {
 			notifyUpdate.Disable()
 			notifyError.Disable()
+			notifyStartSummary.Disable()
 		}
 	}
 	setNotificationsEnabled(cfg.Notifications.Enabled)
@@ -114,9 +124,10 @@ func Show(app fyne.App, deps Deps) {
 				UpdateOnStart: updateOnStart.Checked,
 			},
 			Notifications: config.NotificationsConfig{
-				Enabled:       notifyEnabled.Checked,
-				OnUpdateSpent: notifyUpdate.Checked,
-				OnError:       notifyError.Checked,
+				Enabled:        notifyEnabled.Checked,
+				OnUpdateSpent:  notifyUpdate.Checked,
+				OnError:        notifyError.Checked,
+				OnStartSummary: notifyStartSummary.Checked,
 			},
 			Logging: config.LoggingConfig{Level: logLevelSelect.Selected},
 		}
@@ -166,8 +177,10 @@ func Show(app fyne.App, deps Deps) {
 		widget.NewSeparator(),
 		widget.NewLabelWithStyle("Notifications", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		notifyEnabled,
-		notifyUpdate,
-		notifyError,
+		indentCheck(notifyUpdate),
+		indentCheck(notifyStartSummary),
+		indentCheck(notifyError),
+		testNotifyButton,
 		widget.NewSeparator(),
 		widget.NewLabelWithStyle("Logging", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		container.NewGridWithColumns(2, widget.NewLabel("Level"), logLevelSelect),
@@ -188,4 +201,8 @@ func runOnMain(app fyne.App, fn func()) {
 		return
 	}
 	fn()
+}
+
+func indentCheck(check *widget.Check) fyne.CanvasObject {
+	return container.NewHBox(widget.NewLabel("    "), check)
 }

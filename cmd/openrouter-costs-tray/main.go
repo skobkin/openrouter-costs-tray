@@ -15,6 +15,7 @@ import (
 	"openrouter-costs-tray/internal/refresh"
 	"openrouter-costs-tray/internal/scheduler"
 	"openrouter-costs-tray/internal/state"
+	"openrouter-costs-tray/internal/summary"
 	"openrouter-costs-tray/internal/ui/settings"
 	"openrouter-costs-tray/internal/ui/tray"
 )
@@ -143,6 +144,14 @@ func main() {
 	trayUI.Update()
 	sched.Start()
 
+	sendStartSummary := func() {
+		if notifier == nil {
+			return
+		}
+		content := summary.Tooltip(cfgStore.Get(), stateStore.Snapshot())
+		notifier.NotifyStartSummary(content)
+	}
+
 	if cfg.Updates.UpdateOnStart {
 		go func() {
 			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
@@ -150,7 +159,10 @@ func main() {
 				logger.Warn("startup refresh failed", "error", err)
 			}
 			cancel()
+			sendStartSummary()
 		}()
+	} else {
+		sendStartSummary()
 	}
 
 	fyneApp.Run()

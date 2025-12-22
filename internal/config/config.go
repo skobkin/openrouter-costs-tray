@@ -26,9 +26,10 @@ type UpdatesConfig struct {
 }
 
 type NotificationsConfig struct {
-	Enabled       bool `json:"enabled"`
-	OnUpdateSpent bool `json:"on_update_spent"`
-	OnError       bool `json:"on_error"`
+	Enabled        bool `json:"enabled"`
+	OnUpdateSpent  bool `json:"on_update_spent"`
+	OnError        bool `json:"on_error"`
+	OnStartSummary bool `json:"on_start_summary"`
 }
 
 type LoggingConfig struct {
@@ -52,9 +53,10 @@ func DefaultConfig() Config {
 			UpdateOnStart: true,
 		},
 		Notifications: NotificationsConfig{
-			Enabled:       false,
-			OnUpdateSpent: true,
-			OnError:       true,
+			Enabled:        false,
+			OnUpdateSpent:  true,
+			OnError:        true,
+			OnStartSummary: false,
 		},
 		Logging: LoggingConfig{
 			Level: "info",
