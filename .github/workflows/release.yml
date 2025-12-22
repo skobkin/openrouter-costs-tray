@@ -45,7 +45,6 @@ jobs:
           go-version: '1.23.x'
       - name: Install dependencies
         run: |
-          sudo dpkg --add-architecture arm64
           sudo apt-get update
           sudo apt-get install -y \
             libgl1-mesa-dev \
@@ -55,17 +54,7 @@ jobs:
             libxinerama-dev \
             libxi-dev \
             libxxf86vm-dev \
-            mingw-w64 \
-            gcc-aarch64-linux-gnu \
-            g++-aarch64-linux-gnu \
-            libc6-dev:arm64 \
-            libgl1-mesa-dev:arm64 \
-            libx11-dev:arm64 \
-            libxrandr-dev:arm64 \
-            libxinerama-dev:arm64 \
-            libxi-dev:arm64 \
-            libxcursor-dev:arm64 \
-            libxxf86vm-dev:arm64
+            mingw-w64
       - name: GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
