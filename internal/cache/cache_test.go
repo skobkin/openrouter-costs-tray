@@ -51,3 +51,45 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		t.Fatalf("daily usage mismatch")
 	}
 }
+
+func TestStoreLoadMissing(t *testing.T) {
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, CacheFileName)
+	store := NewStore(path)
+	loaded, err := store.Load()
+	if err != nil {
+		t.Fatalf("load failed: %v", err)
+	}
+	if loaded != nil {
+		t.Fatalf("expected nil cache, got %+v", loaded)
+	}
+}
+
+func TestStoreSaveLoad(t *testing.T) {
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, CacheFileName)
+	store := NewStore(path)
+	value := 2.5
+	cache := CostsCache{
+		SchemaVersion: SchemaVersion,
+		TotalUsage:    12.5,
+		DailyUsage:    &value,
+		KeyHash:       "hash",
+	}
+	if err := store.Save(cache); err != nil {
+		t.Fatalf("save failed: %v", err)
+	}
+	loaded, err := store.Load()
+	if err != nil {
+		t.Fatalf("load failed: %v", err)
+	}
+	if loaded == nil {
+		t.Fatalf("expected cache")
+	}
+	if loaded.KeyHash != cache.KeyHash || loaded.TotalUsage != cache.TotalUsage {
+		t.Fatalf("expected cache to round trip")
+	}
+	if loaded.DailyUsage == nil || *loaded.DailyUsage != *cache.DailyUsage {
+		t.Fatalf("expected daily usage to round trip")
+	}
+}

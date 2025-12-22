@@ -60,3 +60,41 @@ func TestNormalizeInvalidPeriod(t *testing.T) {
 		t.Fatalf("expected period to be normalized")
 	}
 }
+
+func TestStoreGetSetSave(t *testing.T) {
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, ConfigFileName)
+	cfg := DefaultConfig()
+	cfg.Connection.Token = "token"
+	store := NewStore(path, cfg)
+	if got := store.Get(); got.Connection.Token != "token" {
+		t.Fatalf("expected token from store")
+	}
+
+	updated := cfg
+	updated.Updates.Period = "15m"
+	store.Set(updated)
+	if got := store.Get(); got.Updates.Period != "15m" {
+		t.Fatalf("expected updated period")
+	}
+
+	if err := store.Save(); err != nil {
+		t.Fatalf("save failed: %v", err)
+	}
+	loaded, err := LoadFromPath(path)
+	if err != nil {
+		t.Fatalf("load failed: %v", err)
+	}
+	if loaded.Updates.Period != "15m" {
+		t.Fatalf("expected saved period")
+	}
+}
+
+func TestParsePeriod(t *testing.T) {
+	if _, ok := ParsePeriod("15m"); !ok {
+		t.Fatalf("expected period to parse")
+	}
+	if _, ok := ParsePeriod("bogus"); ok {
+		t.Fatalf("expected invalid period")
+	}
+}
