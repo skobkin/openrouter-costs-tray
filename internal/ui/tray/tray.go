@@ -16,20 +16,18 @@ import (
 type Actions struct {
 	Refresh      func()
 	OpenSettings func()
-	UpdatePeriod func(string)
 	OpenWeb      func()
 	Exit         func()
 }
 
 type Tray struct {
-	app         fyne.App
-	desktopApp  desktop.App
-	state       *state.State
-	cfgStore    *config.Store
-	logger      *slog.Logger
-	menu        *fyne.Menu
-	updateItems map[string]*fyne.MenuItem
-	actions     Actions
+	app        fyne.App
+	desktopApp desktop.App
+	state      *state.State
+	cfgStore   *config.Store
+	logger     *slog.Logger
+	menu       *fyne.Menu
+	actions    Actions
 }
 
 func New(app fyne.App, stateStore *state.State, cfgStore *config.Store, logger *slog.Logger, actions Actions) *Tray {
@@ -41,9 +39,6 @@ func New(app fyne.App, stateStore *state.State, cfgStore *config.Store, logger *
 	}
 	if actions.OpenSettings == nil {
 		actions.OpenSettings = func() {}
-	}
-	if actions.UpdatePeriod == nil {
-		actions.UpdatePeriod = func(string) {}
 	}
 	if actions.OpenWeb == nil {
 		actions.OpenWeb = func() {}
@@ -61,13 +56,12 @@ func New(app fyne.App, stateStore *state.State, cfgStore *config.Store, logger *
 		}
 	}
 	tray := &Tray{
-		app:         app,
-		desktopApp:  desktopApp,
-		state:       stateStore,
-		cfgStore:    cfgStore,
-		logger:      logger,
-		updateItems: map[string]*fyne.MenuItem{},
-		actions:     actions,
+		app:        app,
+		desktopApp: desktopApp,
+		state:      stateStore,
+		cfgStore:   cfgStore,
+		logger:     logger,
+		actions:    actions,
 	}
 	tray.buildMenu()
 	tray.Update()
@@ -84,23 +78,10 @@ func (t *Tray) Update() {
 
 	t.menu.Label = label
 	t.setIcon(snap, cfg)
-	t.updatePeriodChecks(cfg.Updates.Period)
 	t.menu.Refresh()
 }
 
 func (t *Tray) buildMenu() {
-	periodMenu := fyne.NewMenu("Update period")
-	for _, period := range config.PeriodOptions {
-		period := period
-		item := fyne.NewMenuItem(period, func() {
-			t.actions.UpdatePeriod(period)
-		})
-		periodMenu.Items = append(periodMenu.Items, item)
-		t.updateItems[period] = item
-	}
-	periodItem := fyne.NewMenuItem("Update period", nil)
-	periodItem.ChildMenu = periodMenu
-
 	refreshItem := fyne.NewMenuItem("Refresh", func() {
 		t.actions.Refresh()
 	})
@@ -114,18 +95,9 @@ func (t *Tray) buildMenu() {
 		t.actions.Exit()
 	})
 
-	t.menu = fyne.NewMenu("OpenRouter Costs", periodItem, refreshItem, openWebItem, settingsItem, exitItem)
+	t.menu = fyne.NewMenu("OpenRouter Costs", refreshItem, openWebItem, settingsItem, exitItem)
 	if t.desktopApp != nil {
 		t.desktopApp.SetSystemTrayMenu(t.menu)
-	}
-}
-
-func (t *Tray) updatePeriodChecks(selected string) {
-	for period, item := range t.updateItems {
-		if item == nil {
-			continue
-		}
-		item.Checked = period == selected
 	}
 }
 
