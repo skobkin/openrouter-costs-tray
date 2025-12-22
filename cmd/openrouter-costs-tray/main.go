@@ -115,20 +115,6 @@ func main() {
 				},
 			})
 		},
-		UpdatePeriod: func(period string) {
-			current := cfgStore.Get()
-			current.Updates.Period = period
-			config.Normalize(&current)
-			cfgStore.Set(current)
-			if err := cfgStore.Save(); err != nil {
-				logger.Warn("failed to save config", "error", err)
-			}
-			if dur, ok := config.ParsePeriod(period); ok {
-				sched.Reschedule(dur)
-			}
-			logger.Info("update period changed", "period", period)
-			trayUI.Update()
-		},
 		OpenWeb: func() {
 			snap := stateStore.Snapshot()
 			urlStr := activityURL(snap.Usage.KeyID)
