@@ -116,10 +116,3 @@ func (t *Tray) setIcon(snap state.Snapshot, cfg config.Config) {
 	}
 	t.desktopApp.SetSystemTrayIcon(IconResource())
 }
-
-func runOnMain(app fyne.App, fn func()) {
-	if fn == nil {
-		return
-	}
-	fn()
-}
