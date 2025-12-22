@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 
 run:
   timeout: 5m
@@ -34,14 +34,13 @@ linters:
         - name: time-naming
         - name: unreachable-code
         - name: unnecessary-stmt
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
 
 formatters:
   enable:
     - gofmt
     - goimports
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
