@@ -74,6 +74,7 @@ func main() {
 	}
 
 	fyneApp := app.NewWithID(appID)
+	fyneApp.SetIcon(tray.IconResource())
 
 	client := openrouter.NewClient("", nil, logger.With("component", "client"))
 	notifier := notify.New(fyneApp, cfg.Notifications, logger.With("component", "notifier"))

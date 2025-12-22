@@ -17,7 +17,7 @@ var (
 	trayIcon     fyne.Resource
 )
 
-func trayIconResource() fyne.Resource {
+func IconResource() fyne.Resource {
 	trayIconOnce.Do(func() {
 		trayIcon = buildTrayIcon()
 		if trayIcon == nil {
