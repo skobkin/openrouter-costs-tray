@@ -8,6 +8,12 @@ linters:
     - govet
     - errcheck
     - staticcheck
+    - ineffassign
+    - unused
+    - bodyclose
+    - unconvert
+    - unparam
+    - errorlint
   settings:
     errcheck:
       exclude-functions:

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"time"
 
@@ -87,7 +88,7 @@ func main() {
 		interval = 30 * time.Minute
 	}
 	sched := scheduler.New(interval, func(ctx context.Context) error {
-		if err := refresher.Refresh(ctx); err != nil && err != refresh.ErrNotConfigured {
+		if err := refresher.Refresh(ctx); err != nil && !errors.Is(err, refresh.ErrNotConfigured) {
 			return err
 		}
 		return nil
@@ -98,7 +99,7 @@ func main() {
 		Refresh: func() {
 			go func() {
 				ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-				if err := refresher.Refresh(ctx); err != nil && err != refresh.ErrNotConfigured {
+				if err := refresher.Refresh(ctx); err != nil && !errors.Is(err, refresh.ErrNotConfigured) {
 					logger.Warn("manual refresh failed", "error", err)
 				}
 				cancel()
@@ -155,7 +156,7 @@ func main() {
 	if cfg.Updates.UpdateOnStart {
 		go func() {
 			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-			if err := refresher.Refresh(ctx); err != nil && err != refresh.ErrNotConfigured {
+			if err := refresher.Refresh(ctx); err != nil && !errors.Is(err, refresh.ErrNotConfigured) {
 				logger.Warn("startup refresh failed", "error", err)
 			}
 			cancel()

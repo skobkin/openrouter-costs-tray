@@ -2,6 +2,7 @@ package openrouter
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -42,7 +43,7 @@ func TestFetchUsageUnauthorized(t *testing.T) {
 
 	client := NewClient(srv.URL, srv.Client(), nil)
 	_, err := client.FetchUsage(context.Background(), "token")
-	if err != ErrUnauthorized {
+	if !errors.Is(err, ErrUnauthorized) {
 		t.Fatalf("expected ErrUnauthorized, got %v", err)
 	}
 }
