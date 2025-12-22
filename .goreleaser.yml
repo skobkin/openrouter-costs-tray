@@ -1,3 +1,5 @@
+version: 2
+
 project_name: openrouter-costs-tray
 
 before:
@@ -10,6 +12,8 @@ builds:
     binary: openrouter-costs-tray
     env:
       - CGO_ENABLED=1
+      - CC={{ if eq .Os "windows" }}x86_64-w64-mingw32-gcc{{ else if eq .Arch "arm64" }}aarch64-linux-gnu-gcc{{ else }}gcc{{ end }}
+      - CXX={{ if eq .Os "windows" }}x86_64-w64-mingw32-g++{{ else if eq .Arch "arm64" }}aarch64-linux-gnu-g++{{ else }}g++{{ end }}
     goos:
       - linux
       - windows
@@ -25,11 +29,13 @@ builds:
       - -s -w
 
 archives:
-  - format: tar.gz
+  - formats:
+      - tar.gz
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
 
 checksum:
   name_template: "checksums.txt"
