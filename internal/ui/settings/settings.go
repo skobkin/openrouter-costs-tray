@@ -69,7 +69,7 @@ func Show(app fyne.App, deps Deps) {
 			} else if usage.Label != "" {
 				result = "Test OK (" + usage.Label + ")"
 			}
-			runOnMain(app, func() {
+			runOnMain(func() {
 				statusLabel.SetText(result)
 			})
 		}()
@@ -161,7 +161,7 @@ func Show(app fyne.App, deps Deps) {
 			if err != nil {
 				result = "Saved + Update failed: " + err.Error()
 			}
-			runOnMain(app, func() {
+			runOnMain(func() {
 				statusLabel.SetText(result)
 			})
 		}()
@@ -196,7 +196,7 @@ func Show(app fyne.App, deps Deps) {
 	window.Show()
 }
 
-func runOnMain(app fyne.App, fn func()) {
+func runOnMain(fn func()) {
 	if fn == nil {
 		return
 	}
