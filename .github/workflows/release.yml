@@ -7,15 +7,39 @@ on:
       - completed
 
 jobs:
-  release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.ref, 'refs/tags/') }}
+  gate:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    outputs:
+      is_tag: ${{ steps.tag.outputs.is_tag }}
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
           ref: ${{ github.event.workflow_run.head_sha }}
+      - id: tag
+        shell: bash
+        run: |
+          tag="$(git tag --points-at "${{ github.event.workflow_run.head_sha }}" | head -n1)"
+          if [ -n "$tag" ]; then
+            echo "is_tag=true" >> "$GITHUB_OUTPUT"
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_tag=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: gate
+    if: ${{ needs.gate.outputs.is_tag == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          ref: ${{ needs.gate.outputs.tag }}
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.x'
