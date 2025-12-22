@@ -14,11 +14,29 @@ linters:
     - unconvert
     - unparam
     - errorlint
+    - revive
+    - gocritic
+    - nilerr
+    - misspell
+    - gosec
   settings:
     errcheck:
       exclude-functions:
         - os.Remove
         - (io.Closer).Close
+    gosec:
+      excludes:
+        - G304
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-keys-type
+        - name: errorf
+        - name: if-return
+        - name: range
+        - name: time-naming
+        - name: unreachable-code
+        - name: unnecessary-stmt
 
 formatters:
   enable:
