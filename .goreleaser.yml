@@ -22,7 +22,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w
+      - -s -w {{ if eq .Os "windows" }}-H=windowsgui{{ end }}
 
 archives:
   - formats:
