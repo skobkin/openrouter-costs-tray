@@ -14,6 +14,11 @@ type Output struct {
 	writer *multiWriter
 }
 
+type WriteCloser interface {
+	io.Writer
+	io.Closer
+}
+
 func NewLogger(level string) (*slog.Logger, *slog.LevelVar, *Output) {
 	levelVar := &slog.LevelVar{}
 	SetLevel(levelVar, level)
@@ -56,6 +61,17 @@ func (o *Output) EnableFile(path string) error {
 	return nil
 }
 
+func (o *Output) EnableWriter(writer WriteCloser) error {
+	if o == nil || o.writer == nil {
+		return errors.New("log output not initialized")
+	}
+	if writer == nil {
+		return errors.New("log output writer is nil")
+	}
+	o.writer.setFile(writer)
+	return nil
+}
+
 func (o *Output) DisableFile() error {
 	if o == nil || o.writer == nil {
 		return nil
@@ -66,7 +82,7 @@ func (o *Output) DisableFile() error {
 type multiWriter struct {
 	mu     sync.Mutex
 	stdout io.Writer
-	file   *os.File
+	file   WriteCloser
 }
 
 func (w *multiWriter) Write(p []byte) (int, error) {
@@ -84,7 +100,7 @@ func (w *multiWriter) Write(p []byte) (int, error) {
 	return n, err
 }
 
-func (w *multiWriter) setFile(file *os.File) {
+func (w *multiWriter) setFile(file WriteCloser) {
 	w.mu.Lock()
 	old := w.file
 	w.file = file
