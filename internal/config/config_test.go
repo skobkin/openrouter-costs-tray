@@ -26,7 +26,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		Connection:    ConnectionConfig{Token: "token"},
 		Updates:       UpdatesConfig{Period: "15m", UpdateOnStart: false},
 		Notifications: NotificationsConfig{Enabled: true, OnUpdateSpent: false, OnError: true},
-		Logging:       LoggingConfig{Level: "debug"},
+		Logging:       LoggingConfig{Level: "debug", ToFile: true},
 	}
 	if err := SaveToPath(path, cfg); err != nil {
 		t.Fatalf("save failed: %v", err)
@@ -46,6 +46,9 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	}
 	if loaded.Logging.Level != cfg.Logging.Level {
 		t.Fatalf("logging mismatch")
+	}
+	if loaded.Logging.ToFile != cfg.Logging.ToFile {
+		t.Fatalf("logging to file mismatch")
 	}
 	if _, err := os.Stat(path); err != nil {
 		t.Fatalf("expected config file to exist: %v", err)

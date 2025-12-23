@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/url"
+	"path/filepath"
 	"time"
 
 	"fyne.io/fyne/v2/app"
@@ -38,8 +39,17 @@ func main() {
 		cfg = config.DefaultConfig()
 	}
 
-	logger, levelVar := logging.NewLogger(cfg.Logging.Level)
+	logger, levelVar, logOutput := logging.NewLogger(cfg.Logging.Level)
 	logger = logger.With("app", appID)
+
+	logPath := filepath.Join(filepath.Dir(cfgPath), config.LogFileName)
+	if cfg.Logging.ToFile {
+		if err := logOutput.EnableFile(logPath); err != nil {
+			logger.Warn("log file unavailable", "error", err, "path", logPath)
+		} else {
+			logger.Info("logging to file enabled", "path", logPath)
+		}
+	}
 
 	if cfgErr != nil {
 		logger.Warn("config dir unavailable", "error", cfgErr, "path", cfgPath)
@@ -112,6 +122,8 @@ func main() {
 				Scheduler:   sched,
 				Notifier:    notifier,
 				LevelVar:    levelVar,
+				LogOutput:   logOutput,
+				LogPath:     logPath,
 				Logger:      logger.With("component", "settings"),
 				OnConfigApplied: func(cfg config.Config) {
 					trayUI.Update()

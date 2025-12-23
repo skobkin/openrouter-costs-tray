@@ -12,6 +12,7 @@ import (
 const (
 	AppDirName     = "openrouter-cost-tray"
 	ConfigFileName = "config.json"
+	LogFileName    = "openrouter-costs-tray.log"
 )
 
 var PeriodOptions = []string{"5m", "15m", "30m", "1h", "3h", "6h", "12h"}
@@ -33,7 +34,8 @@ type NotificationsConfig struct {
 }
 
 type LoggingConfig struct {
-	Level string `json:"level"`
+	Level  string `json:"level"`
+	ToFile bool   `json:"to_file"`
 }
 
 type Config struct {
@@ -59,7 +61,8 @@ func DefaultConfig() Config {
 			OnStartSummary: false,
 		},
 		Logging: LoggingConfig{
-			Level: "info",
+			Level:  "info",
+			ToFile: false,
 		},
 	}
 }

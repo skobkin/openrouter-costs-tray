@@ -25,6 +25,8 @@ type Deps struct {
 	Scheduler       *scheduler.Scheduler
 	Notifier        *notify.Notifier
 	LevelVar        *slog.LevelVar
+	LogOutput       *logging.Output
+	LogPath         string
 	Logger          *slog.Logger
 	OnConfigApplied func(config.Config)
 }
@@ -115,6 +117,8 @@ func Show(app fyne.App, deps Deps) {
 
 	logLevelSelect := widget.NewSelect([]string{"debug", "info", "warn", "error"}, nil)
 	logLevelSelect.SetSelected(cfg.Logging.Level)
+	logToFile := widget.NewCheck("Log to file", nil)
+	logToFile.SetChecked(cfg.Logging.ToFile)
 
 	saveButton := widget.NewButton("Save", func() {
 		newCfg := config.Config{
@@ -129,7 +133,10 @@ func Show(app fyne.App, deps Deps) {
 				OnError:        notifyError.Checked,
 				OnStartSummary: notifyStartSummary.Checked,
 			},
-			Logging: config.LoggingConfig{Level: logLevelSelect.Selected},
+			Logging: config.LoggingConfig{
+				Level:  logLevelSelect.Selected,
+				ToFile: logToFile.Checked,
+			},
 		}
 		config.Normalize(&newCfg)
 		deps.ConfigStore.Set(newCfg)
@@ -140,6 +147,15 @@ func Show(app fyne.App, deps Deps) {
 		settingsLogger.Info("config saved")
 		if deps.LevelVar != nil {
 			logging.SetLevel(deps.LevelVar, newCfg.Logging.Level)
+		}
+		if deps.LogOutput != nil {
+			if newCfg.Logging.ToFile {
+				if err := deps.LogOutput.EnableFile(deps.LogPath); err != nil {
+					settingsLogger.Warn("log file enable failed", "error", err, "path", deps.LogPath)
+				}
+			} else if err := deps.LogOutput.DisableFile(); err != nil {
+				settingsLogger.Warn("log file disable failed", "error", err)
+			}
 		}
 		if deps.Notifier != nil {
 			deps.Notifier.UpdateConfig(newCfg.Notifications)
@@ -184,6 +200,7 @@ func Show(app fyne.App, deps Deps) {
 		widget.NewSeparator(),
 		widget.NewLabelWithStyle("Logging", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		container.NewGridWithColumns(2, widget.NewLabel("Level"), logLevelSelect),
+		logToFile,
 		layout.NewSpacer(),
 		container.NewHBox(saveButton),
 		statusLabel,
